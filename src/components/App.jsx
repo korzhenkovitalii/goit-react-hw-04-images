@@ -1,5 +1,6 @@
 import React from 'react';
 import { ToastContainer } from 'react-toastify';
+import { Helper } from 'components/Helper/Helper';
 import 'react-toastify/dist/ReactToastify.css';
 
 //Components
@@ -28,20 +29,31 @@ class App extends React.Component {
   componentDidUpdate(prevProps, prevState) {
     const { page, search } = this.state;
 
-    if (prevState.search !== search || prevState.page !== page) {
+    if (prevState.search !== search) {
       this.setState({ status: 'pending' });
 
       fetchMovies(page, search)
         .then(images => {
-          //Если по запросу ничего не найдено
-
           if (images.total === 0) {
             this.setState({ status: 'idle' });
             return alert(`Sorry,nothing found for request '${search}'`);
           }
 
+          this.setState({
+            images: Helper(images.hits),
+            status: 'resolved',
+          });
+        })
+        .catch(error => this.setState({ error, status: 'rejected' }));
+    }
+
+    if (prevState.page !== page) {
+      this.setState({ status: 'pending' });
+
+      fetchMovies(page, search)
+        .then(images => {
           this.setState(prevState => ({
-            images: [...prevState.images, ...images.hits],
+            images: [...prevState.images, ...Helper(images.hits)],
             status: 'resolved',
           }));
         })
@@ -71,7 +83,6 @@ class App extends React.Component {
 
   render() {
     const { images, error, status, showModal, imageForModal } = this.state;
-    console.log(images);
     if (status === 'idle') {
       return (
         <div className={css.app}>
@@ -86,8 +97,8 @@ class App extends React.Component {
       return (
         <div className={css.app}>
           <Searchbar onSubmit={this.handleFormSubmit} />
-          <Loader />
           <ImageGallery images={images} toggleModal={this.toggleModal} />
+          <Loader />
           <ToastContainer autoClose={2000} />
         </div>
       );

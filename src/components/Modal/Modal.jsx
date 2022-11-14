@@ -3,6 +3,11 @@ import PropTypes from 'prop-types';
 import css from 'components/Modal/Modal.module.css';
 
 class Modal extends React.Component {
+  static propTypes = {
+    imageForModal: PropTypes.string.isRequired,
+    onClickModal: PropTypes.func.isRequired,
+  };
+
   componentDidMount() {
     window.addEventListener('keydown', this.handelKeyDown);
   }
@@ -12,9 +17,8 @@ class Modal extends React.Component {
   }
 
   handelKeyDown = e => {
-    console.log(e.code)
+    console.log(e.code);
     if (e.code === 'Escape') {
-      
       this.props.onClickModal();
     }
   };
@@ -37,9 +41,3 @@ class Modal extends React.Component {
 }
 
 export default Modal;
-
-
-Modal.propTypes = {
-  imageForModal: PropTypes.string.isRequired,
-  onClickModal: PropTypes.func.isRequired,
-};
